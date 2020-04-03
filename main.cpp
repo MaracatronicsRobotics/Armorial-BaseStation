@@ -3,11 +3,11 @@
 #include <packetmanager.h>
 
 /* backbone (localhost?) defines */
-#define BACKBONE_ADDRESS "localhost"
+#define BACKBONE_ADDRESS "127.0.0.1"
 #define BACKBONE_PORT 0
 
 /* grsim host defines */
-#define GRSIM_ADDRESS "localhost"
+#define GRSIM_ADDRESS "127.0.0.1"
 #define GRSIM_PORT 20011
 
 /* thread defines */

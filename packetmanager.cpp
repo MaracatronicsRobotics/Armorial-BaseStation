@@ -60,6 +60,7 @@ void PacketManager::run(){
                     _writeMutex.lock();
                     if(packets[x][y].isUpdated){
                         sendPacket(packets[x][y]);
+                        markPlayersAsOutdated(x, y);
                     }
                     _writeMutex.unlock();
                 }
@@ -88,7 +89,7 @@ void PacketManager::markPlayersAsUpdated(quint8 teamNum, quint8 playerNum) {
     packets[teamNum][playerNum].isUpdated = true;
 }
 
-void PacketManager::markPlayersAsOutdated(uint8 teamNum, uint8 playerNum) {
+void PacketManager::markPlayersAsOutdated(quint8 teamNum, quint8 playerNum) {
     packets[teamNum][playerNum].isUpdated = false;
 }
 
@@ -108,7 +109,7 @@ void PacketManager::stopRunning() {
     _mutexRunning.unlock();
 }
 
-bool PacketManager::connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, const uint16 grSimPort) {
+bool PacketManager::connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, const quint16 grSimPort) {
     // Connects to WRBackbone
     if(!Actuator::connect(serverAddress, serverPort)) {
         std::cerr << ">> [Armorial-Actuator] Failed to connect to WRBackbone server!" << std::endl;
@@ -141,7 +142,8 @@ bool PacketManager::isConnected() const {
 void PacketManager::setSpeed(quint8 teamNum, quint8 playerNum, float x, float y, float theta) {
     // Save values
     _writeMutex.lock();
-    packets[teamNum][playerNum].vx    = -x;
+
+    packets[teamNum][playerNum].vx    = x;
     packets[teamNum][playerNum].vy    = y;
     packets[teamNum][playerNum].angle = theta;
     markPlayersAsUpdated(teamNum, playerNum);

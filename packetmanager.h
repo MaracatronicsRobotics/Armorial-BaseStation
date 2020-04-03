@@ -25,7 +25,7 @@ public:
     PacketManager(const QString &name);
 
     // Network (actuator in gearsystem)
-    bool connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, uint16 grSimPort);
+    bool connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, quint16 grSimPort);
     void disconnect();
     bool isConnected() const;
 
@@ -38,12 +38,12 @@ private:
     void run();
 
     // Actuator inherit
-    void setSpeed(uint8 teamNum, uint8 playerNum, float x, float y, float theta);
-    void kick(uint8 teamNum, uint8 playerNum, float power);
-    void chipKick(uint8 teamNum, uint8 playerNum, float power);
-    void kickOnTouch(uint8 teamNum, uint8 playerNum, bool enable, float power);
-    void chipKickOnTouch(uint8 teamNum, uint8 playerNum, bool enable, float power);
-    void holdBall(uint8 teamNum, uint8 playerNum, bool enable);
+    void setSpeed(quint8 teamNum, quint8 playerNum, float x, float y, float theta);
+    void kick(quint8 teamNum, quint8 playerNum, float power);
+    void chipKick(quint8 teamNum, quint8 playerNum, float power);
+    void kickOnTouch(quint8 teamNum, quint8 playerNum, bool enable, float power);
+    void chipKickOnTouch(quint8 teamNum, quint8 playerNum, bool enable, float power);
+    void holdBall(quint8 teamNum, quint8 playerNum, bool enable);
 
     // grSim socket
     typedef struct{
@@ -70,8 +70,8 @@ private:
     QMutex _writeMutex;
 
     // Internal
-    void markPlayersAsUpdated(uint8 teamNum, uint8 playerNum);
-    void markPlayersAsOutdated(uint8 teamNum, uint8 playerNum);
+    void markPlayersAsUpdated(quint8 teamNum, quint8 playerNum);
+    void markPlayersAsOutdated(quint8 teamNum, quint8 playerNum);
 };
 
 #endif // PACKETMANAGER_H
