@@ -64,3 +64,6 @@ target_wrapper.*
 
 # QtCreator CMake
 CMakeLists.txt.user*
+
+# Delete build folder
+build/
