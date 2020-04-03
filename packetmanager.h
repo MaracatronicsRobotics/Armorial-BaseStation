@@ -7,6 +7,8 @@
 #include <GEARSystem/gearsystem.hh>
 #include <utils/timer.h>
 
+#include <iostream>
+
 // grsim protobuf
 #include <include/3rd_party/grSim_Commands.pb.h>
 #include <include/3rd_party/grSim_Packet.pb.h>
