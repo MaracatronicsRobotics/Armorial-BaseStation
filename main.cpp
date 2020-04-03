@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 
     PacketManager packetManager("Armorial-Actuator");
     packetManager.connect(BACKBONE_ADDRESS, BACKBONE_PORT, GRSIM_ADDRESS, GRSIM_PORT);
-    packetManager.setLoopFrequency(60);
+    packetManager.setLoopFrequency(LOOP_FREQUENCY);
     packetManager.start();
 
     // wait
