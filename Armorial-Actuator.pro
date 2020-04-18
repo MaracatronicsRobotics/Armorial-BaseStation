@@ -7,6 +7,17 @@ QT += core \
 CONFIG += c++14 console
 CONFIG -= app_bundle
 
+VERSION  = 1.0.0
+DESTDIR  = ../bin
+TARGET   = Armorial-SimActuator
+
+
+# Temporary dirs
+OBJECTS_DIR = tmp/obj
+MOC_DIR = tmp/moc
+UI_DIR = tmp/moc
+RCC_DIR = tmp/rc
+
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the

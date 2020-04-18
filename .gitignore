@@ -67,3 +67,4 @@ CMakeLists.txt.user*
 
 # Delete build folder
 build/
+bin/
