@@ -35,7 +35,7 @@
 #include <include/3rd_party/grSim_Packet.pb.h>
 #include <include/3rd_party/grSim_Replacement.pb.h>
 
-#define QT_PLAYERS 16
+#define QT_PLAYERS 12
 #define QT_TEAMS 2
 
 class PacketManager : public QThread, public Actuator
