@@ -183,8 +183,8 @@ void PacketManager::kick(quint8 teamNum, quint8 playerNum, float power) {
 void PacketManager::chipKick(quint8 teamNum, quint8 playerNum, float power) {
     // Save values
     _writeMutex.lock();
-    packets[teamNum][playerNum].kickspeedx = power * cos(0.785398);
-    packets[teamNum][playerNum].kickspeedz = power * sin(0.785398);
+    packets[teamNum][playerNum].kickspeedx = power * cos(0.42262189947);
+    packets[teamNum][playerNum].kickspeedz = power * sin(0.42262189947);
     markPlayersAsUpdated(teamNum, playerNum);
     _writeMutex.unlock();
 }
