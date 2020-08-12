@@ -56,6 +56,11 @@ void PacketManager::sendPacket(grs_robot robot){
     command->set_wheel2(robot.v2);
     command->set_wheel3(robot.v3);
     command->set_wheel4(robot.v4);
+/*
+    command->set_veltangent(robot.vy);
+    command->set_velnormal(robot.vx);
+    command->set_velangular(robot.angle);
+*/
 
     command->set_veltangent(robot.vx);
     command->set_velnormal(robot.vy);
@@ -164,6 +169,7 @@ void PacketManager::setSpeed(quint8 teamNum, quint8 playerNum, float x, float y,
     // Save values
     _writeMutex.lock();
 
+    //packets[teamNum][playerNum].vx    = -x;
     packets[teamNum][playerNum].vx    = x;
     packets[teamNum][playerNum].vy    = y;
     packets[teamNum][playerNum].angle = theta;
