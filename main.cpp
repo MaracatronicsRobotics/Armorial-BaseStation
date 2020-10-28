@@ -39,8 +39,34 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
     ExitHandler::setup(&a);
 
+    // Command line parser, get arguments
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Actuator application help.");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    parser.addPositionalArgument("grSimAddress", "Sets the grSim command address (default: '127.0.0.1').");
+    parser.addPositionalArgument("grSimPort", "Sets the grSim command address (default: '20011').");
+    parser.process(a);
+    QStringList args = parser.positionalArguments();
+
+    /// Args
+    QString grSimAddress = "127.0.0.1";
+    quint16 grSimPort = 20011;
+
+    /// Check arguments
+    // Team color
+    if(args.size() >= 1) {
+        grSimAddress = args.at(0);
+    }
+    // Field side
+    if(args.size() >= 2) {
+        grSimPort = static_cast<quint16>(args.at(1).toInt());
+    }
+
+    std::cout << "[ACTUATOR] Actuator running on address " << grSimAddress.toStdString() << " and port " << grSimPort << std::endl;
+
     PacketManager packetManager("Armorial-Actuator");
-    packetManager.connect(BACKBONE_ADDRESS, BACKBONE_PORT, GRSIM_ADDRESS, GRSIM_PORT);
+    packetManager.connect(BACKBONE_ADDRESS, BACKBONE_PORT, grSimAddress, grSimPort);
     packetManager.setLoopFrequency(LOOP_FREQUENCY);
     packetManager.start();
 
