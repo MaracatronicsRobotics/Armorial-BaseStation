@@ -46,7 +46,7 @@ public:
     PacketManager(const QString &name);
 
     // Network (actuator in gearsystem)
-    bool connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, quint16 grSimPort);
+    bool connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, quint16 grSimPort, QString networkInterface);
     void disconnect();
     bool isConnected() const;
 

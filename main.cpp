@@ -20,6 +20,7 @@
  ***/
 
 #include <QCoreApplication>
+#include <QNetworkInterface>
 #include <exithandler.h>
 #include <packetmanager.h>
 
@@ -52,6 +53,7 @@ int main(int argc, char *argv[])
     /// Args
     QString grSimAddress = "127.0.0.1";
     quint16 grSimPort = 20011;
+    QString networkInterface = "eth0";
 
     /// Check arguments
     // Team color
@@ -62,11 +64,36 @@ int main(int argc, char *argv[])
     if(args.size() >= 2) {
         grSimPort = static_cast<quint16>(args.at(1).toInt());
     }
+    // Network Interface
+    if(args.size() >= 3) {
+        networkInterface = args.at(2);
+        QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+        bool found = false;
+        for(int i = 0; i < interfaces.size(); i++) {
+            if(interfaces.at(i).name() == networkInterface) {
+                found = true;
+                break;
+            }
+        }
 
-    std::cout << "[ACTUATOR] Actuator running on address " << grSimAddress.toStdString() << " and port " << grSimPort << std::endl;
+        if(!found) {
+            std::cout << "[ERROR] Could not find the network interface '" + networkInterface.toStdString() + "', availables:\n";
+            for(int i = 0; i < interfaces.size(); i++) {
+                std::cout << interfaces.at(i).name().toStdString() + '\n';
+            }
+
+            return 0;
+        }
+    }
+
+    if(args.size() < 3) {
+        std::cout << "[WARNING] Not defined any network interface, so connecting by default to 'eth0'\n";
+    }
+
+    std::cout << "[ACTUATOR] Actuator running on address " << grSimAddress.toStdString() << ", port " << grSimPort << " and interface " << networkInterface.toStdString() << std::endl;
 
     PacketManager packetManager("Armorial-Actuator");
-    packetManager.connect(BACKBONE_ADDRESS, BACKBONE_PORT, grSimAddress, grSimPort);
+    packetManager.connect(BACKBONE_ADDRESS, BACKBONE_PORT, grSimAddress, grSimPort, networkInterface);
     packetManager.setLoopFrequency(LOOP_FREQUENCY);
     packetManager.start();
 

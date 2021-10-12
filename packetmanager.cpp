@@ -20,6 +20,7 @@
  ***/
 
 #include "packetmanager.h"
+#include <QNetworkInterface>
 
 PacketManager::PacketManager(const QString &name) : Actuator(name)
 {
@@ -135,7 +136,7 @@ void PacketManager::stopRunning() {
     _mutexRunning.unlock();
 }
 
-bool PacketManager::connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, const quint16 grSimPort) {
+bool PacketManager::connect(const QString& serverAddress, const uint16 serverPort, const QString& grSimAddress, const quint16 grSimPort, QString networkInterface) {
     // Connects to WRBackbone
     if(!Actuator::connect(serverAddress, serverPort)) {
         std::cerr << ">> [Armorial-Actuator] Failed to connect to WRBackbone server!" << std::endl;
@@ -146,6 +147,12 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
     if(_socket.isOpen())
         _socket.close();
     _socket.connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
+
+//    if(!(_socket.bind(QHostAddress::AnyIPv4, grSimPort, QUdpSocket::ShareAddress) &&
+//            _socket.joinMulticastGroup(QHostAddress("224.5.23.2"), QNetworkInterface::interfaceFromName(networkInterface)))) {
+//        std::cout << "[ACTUATOR] Error while binding socket.!\n";
+//        return false;
+//    }
 
     std::cout << "[Armorial-Actuator] Connected!" << std::endl;
 
