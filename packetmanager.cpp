@@ -79,9 +79,8 @@ void PacketManager::sendPacket(grs_robot robot){
     QByteArray arr;
     arr.resize(packet.ByteSizeLong());
     packet.SerializeToArray(arr.data(), arr.size());
-    QNetworkDatagram datagram(arr, _addrSimulator, _serverPort);
 
-    if(_socket.writeDatagram(datagram) == -1) {
+    if(_socket.writeDatagram(arr, _addrSimulator, _grsimPort) == -1) {
         std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket.errorString().toStdString() << std::endl;
     }
 }
@@ -157,11 +156,15 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
         _socket.close();
 
 
-    const QNetworkInterface iface = QNetworkInterface::interfaceFromName(networkInterface);
-    const QNetworkAddressEntry addrEntry = iface.addressEntries().constFirst();
-    _addrSimulator = addrEntry.broadcast();
+    //const QNetworkInterface iface = QNetworkInterface::interfaceFromName(networkInterface);
+    //const QNetworkAddressEntry addrEntry = iface.addressEntries().constFirst();
+    //_addrSimulator = addrEntry.broadcast();
+
+    _addrSimulator = QHostAddress(grSimAddress);
+    std::cout << "fon? " + _addrSimulator.toString().toStdString() + '\n';
 
 
+    _socket.connectToHost(_addrSimulator, grSimPort, QIODevice::WriteOnly);
     //_socket.connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
 
 //    if(!(_socket.bind(QHostAddress::AnyIPv4, grSimPort, QUdpSocket::ShareAddress) &&
