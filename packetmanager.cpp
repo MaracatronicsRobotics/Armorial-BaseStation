@@ -58,7 +58,7 @@ void PacketManager::sendPacket(grs_robot robot){
     command->set_id(robot.id);
     command->set_kick_speed(sqrtf(powf(robot.kickspeedx, 2.0f) + powf(robot.kickspeedz, 2.0f)));
     command->set_kick_angle(atan2f(robot.kickspeedz, robot.kickspeedx));
-    command->set_dribbler_speed((float)100e3);
+    command->set_dribbler_speed(robot.spinner ? (float)100e3 : 0.0f);
 
     RobotMoveCommand* moveCommand = command->mutable_move_command();
     MoveLocalVelocity* localVelocity = moveCommand->mutable_local_velocity();
