@@ -36,7 +36,7 @@
 #define QT_PLAYERS 12
 #define QT_TEAMS 2
 
-class PacketManager : public QThread, public Actuator
+class PacketManager : public QThread, public Actuator, public RadioSensor
 {
     Q_OBJECT
 public:
@@ -82,6 +82,7 @@ private:
     } grs_robot;
 
     QUdpSocket *_socket;
+    QUdpSocket *_statusSocket;
     grs_robot packets[QT_TEAMS][QT_PLAYERS];
     void sendPacket(grs_robot robot);
 

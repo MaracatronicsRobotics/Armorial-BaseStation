@@ -24,6 +24,9 @@
 #include <QNetworkDatagram>
 #include <QDataStream>
 
+#include <include/3rd_party/status.pb.h>
+#include <include/3rd_party/ssl_simulation_robot_feedback.pb.h>
+
 PacketManager::PacketManager(const QString &name) : Actuator(name)
 {
     for(int x = 0; x < QT_TEAMS; x++){
@@ -42,6 +45,7 @@ PacketManager::PacketManager(const QString &name) : Actuator(name)
     }
 
     _socket = new QUdpSocket(this);
+    _statusSocket = new QUdpSocket(this);
     _running = true;
     _loopTime = 1000;
 }
@@ -69,6 +73,42 @@ void PacketManager::sendPacket(grs_robot robot){
 
     if(_socket->writeDatagram(arr) == -1) {
         std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket->errorString().toStdString() << std::endl;
+    }
+    else if(_socket->waitForReadyRead(5)) {
+        // Lê o pacote de Feedback
+        QByteArray datagram;
+        datagram.resize(_socket->pendingDatagramSize());
+        datagram.fill(0, _socket->pendingDatagramSize());
+        _socket->readDatagram(datagram.data(), datagram.size());
+
+        // Decodifica
+        RobotControlResponse response;
+        response.ParseFromArray(datagram, datagram.size());
+
+        Maracatronics_Team_Status teamStatus;
+
+        if(response.ByteSizeLong() > 0)
+        {
+            for(int i=0; i<response.feedback_size(); ++i)
+            {
+                const RobotFeedback& feedback = response.feedback(i);
+                if(feedback.has_id() &&
+                   feedback.has_dribbler_ball_contact())
+                {
+                    Maracatronics_Robot_Status *robotStatus = teamStatus.add_robots_status();
+                    robotStatus->set_id(feedback.id());
+                    robotStatus->set_dribblestatus(feedback.dribbler_ball_contact());
+                }
+            }
+        }
+
+        QByteArray arr;
+        arr.resize(teamStatus.ByteSizeLong());
+        teamStatus.SerializeToArray(arr.data(), arr.size());
+
+        if(_statusSocket->writeDatagram(arr) == -1) {
+            std::cout << "[ARMORIAL-ACTUATOR] Failed to write status socket.\n";
+        }
     }
 }
 
@@ -138,6 +178,11 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
         return false;
     }
 
+    if(!RadioSensor::connect(serverAddress, serverPort)) {
+        std::cerr << ">> [Armorial-Actuator] Failed to connect to WRBackbone server!" << std::endl;
+        return false;
+    }
+
     // Connects to grSim command listener
     if(_socket->isOpen())
         _socket->close();
@@ -165,6 +210,14 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
     _grsimAddress = grSimAddress;
     _grsimPort = grSimPort;
     _networkInterface = networkInterface;
+
+    // Close if already opened
+    if(_statusSocket->isOpen()) {
+        _statusSocket->close();
+    }
+
+    // Connect to referee address and port
+    _statusSocket->connectToHost("224.5.23.2", 41941, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
 
     return true;
 }

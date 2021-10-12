@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+message Maracatronics_Robot_Status {
+	uint32 id          = 1;
+	bool dribbleStatus = 2;
+}
+
+message Maracatronics_Team_Status {
+	repeated Maracatronics_Robot_Status robots_status = 1;
+}

@@ -43,6 +43,7 @@ SOURCES += \
         include/3rd_party/ssl_simulation_synchronous.pb.cc \
         include/3rd_party/ssl_vision_detection.pb.cc \
         include/3rd_party/ssl_vision_geometry.pb.cc \
+        include/3rd_party/status.pb.cc \
         main.cpp \
         packetmanager.cpp
 
@@ -62,5 +63,6 @@ HEADERS += \
     include/3rd_party/ssl_simulation_synchronous.pb.h \
     include/3rd_party/ssl_vision_detection.pb.h \
     include/3rd_party/ssl_vision_geometry.pb.h \
+    include/3rd_party/status.pb.h \
 	packetmanager.h \
 	utils/timer.h
