@@ -218,6 +218,7 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
 
     // Connect to referee address and port
     _statusSocket->connectToHost("224.5.23.2", 41941, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
+    _statusSocket->setMulticastInterface(QNetworkInterface::interfaceFromName(networkInterface));
 
     return true;
 }
