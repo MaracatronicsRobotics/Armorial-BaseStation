@@ -83,7 +83,7 @@ private:
         bool isUpdated;
     } grs_robot;
 
-    QUdpSocket _socket;
+    QUdpSocket *_socket;
     grs_robot packets[QT_TEAMS][QT_PLAYERS];
     void sendPacket(grs_robot robot);
 

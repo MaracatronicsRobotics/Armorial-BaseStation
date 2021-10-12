@@ -41,6 +41,7 @@ PacketManager::PacketManager(const QString &name) : Actuator(name)
         }
     }
 
+    _socket = new QUdpSocket(this);
     _running = true;
     _loopTime = 1000;
 }
@@ -80,8 +81,8 @@ void PacketManager::sendPacket(grs_robot robot){
     arr.resize(packet.ByteSizeLong());
     packet.SerializeToArray(arr.data(), arr.size());
 
-    if(_socket.writeDatagram(arr, _addrSimulator, _grsimPort) == -1) {
-        std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket.errorString().toStdString() << std::endl;
+    if(_socket->writeDatagram(arr) == -1) {
+        std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket->errorString().toStdString() << std::endl;
     }
 }
 
@@ -152,8 +153,8 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
     }
 
     // Connects to grSim command listener
-    if(_socket.isOpen())
-        _socket.close();
+    if(_socket->isOpen())
+        _socket->close();
 
 
     const QNetworkInterface iface = QNetworkInterface::interfaceFromName(networkInterface);
@@ -164,8 +165,8 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
     //std::cout << "fon? " + _addrSimulator.toString().toStdString() + '\n';
 
 
-    _socket.connectToHost(_addrSimulator, grSimPort, QIODevice::WriteOnly);
-    //_socket.connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
+    //_socket->connectToHost(_addrSimulator, grSimPort, QIODevice::WriteOnly);
+    _socket->connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
 
 //    if(!(_socket.bind(QHostAddress::AnyIPv4, grSimPort, QUdpSocket::ShareAddress) &&
 //            _socket.joinMulticastGroup(QHostAddress("224.5.23.2"), QNetworkInterface::interfaceFromName(networkInterface)))) {
@@ -186,13 +187,13 @@ void PacketManager::disconnect() {
     Actuator::disconnect();
 
     // Close grSim socket
-    if(_socket.isOpen()){
-        _socket.close();
+    if(_socket->isOpen()){
+        _socket->close();
     }
 }
 
 bool PacketManager::isConnected() const {
-    return (_socket.isOpen() && Actuator::isConnected());
+    return (_socket->isOpen() && Actuator::isConnected());
 }
 
 void PacketManager::setSpeed(quint8 teamNum, quint8 playerNum, float x, float y, float theta) {
