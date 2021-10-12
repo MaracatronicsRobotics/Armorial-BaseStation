@@ -77,9 +77,9 @@ void PacketManager::sendPacket(grs_robot robot){
     packet.SerializeToString(&s);
 
     QByteArray arr;
-    QDataStream writeToByteArray (&arr, QIODevice::ReadWrite);
-    QNetworkDatagram datagram(arr, QHostAddress(_serverAddress), _serverPort);
-    datagram.setInterfaceIndex(QNetworkInterface::interfaceIndexFromName(_networkInterface));
+    arr.resize(packet.ByteSizeLong());
+    packet.SerializeToArray(arr.data(), arr.size());
+    QNetworkDatagram datagram(arr, _addrSimulator, _serverPort);
 
     if(_socket.writeDatagram(datagram) == -1) {
         std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket.errorString().toStdString() << std::endl;
@@ -155,7 +155,14 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
     // Connects to grSim command listener
     if(_socket.isOpen())
         _socket.close();
-    _socket.connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
+
+
+    const QNetworkInterface iface = QNetworkInterface::interfaceFromName(networkInterface);
+    const QNetworkAddressEntry addrEntry = iface.addressEntries().constFirst();
+    _addrSimulator = addrEntry.broadcast();
+
+
+    //_socket.connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
 
 //    if(!(_socket.bind(QHostAddress::AnyIPv4, grSimPort, QUdpSocket::ShareAddress) &&
 //            _socket.joinMulticastGroup(QHostAddress("224.5.23.2"), QNetworkInterface::interfaceFromName(networkInterface)))) {

@@ -69,6 +69,7 @@ private:
     QString _grsimAddress;
     uint16 _grsimPort;
     QString _networkInterface;
+    QHostAddress _addrSimulator;
 
     // grSim socket
     typedef struct{
