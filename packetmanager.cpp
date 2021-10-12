@@ -156,12 +156,12 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
         _socket.close();
 
 
-    //const QNetworkInterface iface = QNetworkInterface::interfaceFromName(networkInterface);
-    //const QNetworkAddressEntry addrEntry = iface.addressEntries().constFirst();
-    //_addrSimulator = addrEntry.broadcast();
+    const QNetworkInterface iface = QNetworkInterface::interfaceFromName(networkInterface);
+    const QNetworkAddressEntry addrEntry = iface.addressEntries().constFirst();
+    _addrSimulator = addrEntry.broadcast();
 
-    _addrSimulator = QHostAddress(grSimAddress);
-    std::cout << "fon? " + _addrSimulator.toString().toStdString() + '\n';
+    //_addrSimulator = QHostAddress(grSimAddress);
+    //std::cout << "fon? " + _addrSimulator.toString().toStdString() + '\n';
 
 
     _socket.connectToHost(_addrSimulator, grSimPort, QIODevice::WriteOnly);
