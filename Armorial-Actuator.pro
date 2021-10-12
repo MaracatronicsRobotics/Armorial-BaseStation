@@ -34,9 +34,15 @@ system(echo "compiling protobuf" && cd include/3rd_party/protobuf && protoc --cp
 
 SOURCES += \
         exithandler.cpp \
-        include/3rd_party/grSim_Commands.pb.cc \
-        include/3rd_party/grSim_Packet.pb.cc \
-        include/3rd_party/grSim_Replacement.pb.cc \
+        include/3rd_party/ssl_gc_common.pb.cc \
+        include/3rd_party/ssl_simulation_config.pb.cc \
+        include/3rd_party/ssl_simulation_control.pb.cc \
+        include/3rd_party/ssl_simulation_error.pb.cc \
+        include/3rd_party/ssl_simulation_robot_control.pb.cc \
+        include/3rd_party/ssl_simulation_robot_feedback.pb.cc \
+        include/3rd_party/ssl_simulation_synchronous.pb.cc \
+        include/3rd_party/ssl_vision_detection.pb.cc \
+        include/3rd_party/ssl_vision_geometry.pb.cc \
         main.cpp \
         packetmanager.cpp
 
@@ -46,9 +52,15 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-	exithandler.h \
-	include/3rd_party/grSim_Commands.pb.h \
-	include/3rd_party/grSim_Packet.pb.h \
-	include/3rd_party/grSim_Replacement.pb.h \
+        exithandler.h \
+    include/3rd_party/ssl_gc_common.pb.h \
+    include/3rd_party/ssl_simulation_config.pb.h \
+    include/3rd_party/ssl_simulation_control.pb.h \
+    include/3rd_party/ssl_simulation_error.pb.h \
+    include/3rd_party/ssl_simulation_robot_control.pb.h \
+    include/3rd_party/ssl_simulation_robot_feedback.pb.h \
+    include/3rd_party/ssl_simulation_synchronous.pb.h \
+    include/3rd_party/ssl_vision_detection.pb.h \
+    include/3rd_party/ssl_vision_geometry.pb.h \
 	packetmanager.h \
 	utils/timer.h

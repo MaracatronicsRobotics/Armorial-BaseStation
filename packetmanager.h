@@ -31,9 +31,7 @@
 #include <iostream>
 
 // grsim protobuf
-#include <include/3rd_party/grSim_Commands.pb.h>
-#include <include/3rd_party/grSim_Packet.pb.h>
-#include <include/3rd_party/grSim_Replacement.pb.h>
+#include <include/3rd_party/ssl_simulation_robot_control.pb.h>
 
 #define QT_PLAYERS 12
 #define QT_TEAMS 2
