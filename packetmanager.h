@@ -66,6 +66,10 @@ private:
     void chipKickOnTouch(quint8 teamNum, quint8 playerNum, bool enable, float power);
     void holdBall(quint8 teamNum, quint8 playerNum, bool enable);
 
+    QString _grsimAddress;
+    uint16 _grsimPort;
+    QString _networkInterface;
+
     // grSim socket
     typedef struct{
         bool isYellow;

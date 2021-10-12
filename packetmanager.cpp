@@ -21,6 +21,8 @@
 
 #include "packetmanager.h"
 #include <QNetworkInterface>
+#include <QNetworkDatagram>
+#include <QDataStream>
 
 PacketManager::PacketManager(const QString &name) : Actuator(name)
 {
@@ -73,8 +75,15 @@ void PacketManager::sendPacket(grs_robot robot){
 
     std::string s;
     packet.SerializeToString(&s);
-    if(_socket.write(s.c_str(), s.length()) == -1)
+
+    QByteArray arr;
+    QDataStream writeToByteArray (&arr, QIODevice::ReadWrite);
+    QNetworkDatagram datagram(arr, QHostAddress(_serverAddress), _serverPort);
+    datagram.setInterfaceIndex(QNetworkInterface::interfaceIndexFromName(_networkInterface));
+
+    if(_socket.writeDatagram(datagram) == -1) {
         std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket.errorString().toStdString() << std::endl;
+    }
 }
 
 void PacketManager::run(){
@@ -155,6 +164,10 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
 //    }
 
     std::cout << "[Armorial-Actuator] Connected!" << std::endl;
+
+    _grsimAddress = grSimAddress;
+    _grsimPort = grSimPort;
+    _networkInterface = networkInterface;
 
     return true;
 }
