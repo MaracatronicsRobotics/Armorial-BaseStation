@@ -50,11 +50,7 @@ PacketManager::PacketManager(const QString &name) : Actuator(name)
     _loopTime = 1000;
 }
 
-void PacketManager::sendPacket(grs_robot robot){
-    RobotControl packet;
-
-    RobotCommand* command = packet.add_robot_commands();
-
+void PacketManager::sendPacket(RobotCommand* command, grs_robot robot){
     command->set_id(robot.id);
     command->set_kick_speed(sqrtf(powf(robot.kickspeedx, 2.0f) + powf(robot.kickspeedz, 2.0f)));
     command->set_kick_angle(atan2f(robot.kickspeedz, robot.kickspeedx));
@@ -66,50 +62,6 @@ void PacketManager::sendPacket(grs_robot robot){
     localVelocity->set_forward(robot.vx);
     localVelocity->set_left(robot.vy);
     localVelocity->set_angular(robot.angle);
-
-    QByteArray arr;
-    arr.resize(packet.ByteSizeLong());
-    packet.SerializeToArray(arr.data(), arr.size());
-
-    if(_socket->writeDatagram(arr) == -1) {
-        std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket->errorString().toStdString() << std::endl;
-    }
-    else if(_socket->waitForReadyRead(5)) {
-        // Lê o pacote de Feedback
-        QByteArray datagram;
-        datagram.resize(_socket->pendingDatagramSize());
-        datagram.fill(0, _socket->pendingDatagramSize());
-        _socket->readDatagram(datagram.data(), datagram.size());
-
-        // Decodifica
-        RobotControlResponse response;
-        response.ParseFromArray(datagram, datagram.size());
-
-        Maracatronics_Team_Status teamStatus;
-
-        if(response.ByteSizeLong() > 0)
-        {
-            for(int i=0; i<response.feedback_size(); ++i)
-            {
-                const RobotFeedback& feedback = response.feedback(i);
-                if(feedback.has_id() &&
-                   feedback.has_dribbler_ball_contact())
-                {
-                    Maracatronics_Robot_Status *robotStatus = teamStatus.add_robots_status();
-                    robotStatus->set_id(feedback.id());
-                    robotStatus->set_dribblestatus(feedback.dribbler_ball_contact());
-                }
-            }
-        }
-
-        QByteArray arr;
-        arr.resize(teamStatus.ByteSizeLong());
-        teamStatus.SerializeToArray(arr.data(), arr.size());
-
-        if(_statusSocket->writeDatagram(arr) == -1) {
-            std::cout << "[ARMORIAL-ACTUATOR] Failed to write status socket.\n";
-        }
-    }
 }
 
 void PacketManager::run(){
@@ -117,17 +69,64 @@ void PacketManager::run(){
     while(isRunning()){
         loopController.start();
         if(isConnected()){
+            RobotControl packet;
             for(int x = 0; x < QT_TEAMS; x++){
                 for(int y = 0; y < QT_PLAYERS; y++){
                     _writeMutex.lock();
                     if(packets[x][y].isUpdated){
-                        sendPacket(packets[x][y]);
+                        sendPacket(packet.add_robot_commands(), packets[x][y]);
                         markPlayersAsOutdated(x, y);
                     }
                     _writeMutex.unlock();
                 }
             }
+
+
+            QByteArray arr;
+            arr.resize(packet.ByteSizeLong());
+            packet.SerializeToArray(arr.data(), arr.size());
+
+            if(_socket->writeDatagram(arr) == -1) {
+                std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket->errorString().toStdString() << std::endl;
+            }
+            else if(_socket->waitForReadyRead(5)) {
+                // Lê o pacote de Feedback
+                QByteArray datagram;
+                datagram.resize(_socket->pendingDatagramSize());
+                datagram.fill(0, _socket->pendingDatagramSize());
+                _socket->readDatagram(datagram.data(), datagram.size());
+
+                // Decodifica
+                RobotControlResponse response;
+                response.ParseFromArray(datagram, datagram.size());
+
+                Maracatronics_Team_Status teamStatus;
+
+                if(response.ByteSizeLong() > 0)
+                {
+                    for(int i=0; i<response.feedback_size(); ++i)
+                    {
+                        const RobotFeedback& feedback = response.feedback(i);
+                        if(feedback.has_id() &&
+                           feedback.has_dribbler_ball_contact())
+                        {
+                            Maracatronics_Robot_Status *robotStatus = teamStatus.add_robots_status();
+                            robotStatus->set_id(feedback.id());
+                            robotStatus->set_dribblestatus(feedback.dribbler_ball_contact());
+                        }
+                    }
+                }
+
+                QByteArray arr;
+                arr.resize(teamStatus.ByteSizeLong());
+                teamStatus.SerializeToArray(arr.data(), arr.size());
+
+                if(_statusSocket->writeDatagram(arr) == -1) {
+                    std::cout << "[ARMORIAL-ACTUATOR] Failed to write status socket.\n";
+                }
+            }
         }
+
         loopController.stop();
 
         // loop time control

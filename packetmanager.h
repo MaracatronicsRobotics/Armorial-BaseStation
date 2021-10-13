@@ -84,7 +84,7 @@ private:
     QUdpSocket *_socket;
     QUdpSocket *_statusSocket;
     grs_robot packets[QT_TEAMS][QT_PLAYERS];
-    void sendPacket(grs_robot robot);
+    void sendPacket(RobotCommand* command, grs_robot robot);
 
     // Thread internal info
     QMutex _mutexRunning;
