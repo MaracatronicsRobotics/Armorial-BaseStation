@@ -89,7 +89,8 @@ void PacketManager::run(){
             if(_socket->writeDatagram(arr) == -1) {
                 std::cout << "[Armorial-Actuator] Failed to write to socket: " << _socket->errorString().toStdString() << std::endl;
             }
-            else if(_socket->waitForReadyRead(5)) {
+
+            if(_socket->waitForReadyRead(5)) {
                 // Lê o pacote de Feedback
                 QByteArray datagram;
                 datagram.resize(_socket->pendingDatagramSize());
@@ -124,6 +125,9 @@ void PacketManager::run(){
                 if(_statusSocket->writeDatagram(arr) == -1) {
                     std::cout << "[ARMORIAL-ACTUATOR] Failed to write status socket.\n";
                 }
+            }
+            else {
+                std::cout << "[ARMORIAL-ACTUATLR] Failed to receive status in time.\n";
             }
         }
 
@@ -196,7 +200,7 @@ bool PacketManager::connect(const QString& serverAddress, const uint16 serverPor
 
 
     //_socket->connectToHost(_addrSimulator, grSimPort, QIODevice::WriteOnly);
-    _socket->connectToHost(grSimAddress, grSimPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
+    _socket->connectToHost(grSimAddress, grSimPort, QIODevice::ReadWrite, QAbstractSocket::IPv4Protocol);
 
 //    if(!(_socket.bind(QHostAddress::AnyIPv4, grSimPort, QUdpSocket::ShareAddress) &&
 //            _socket.joinMulticastGroup(QHostAddress("224.5.23.2"), QNetworkInterface::interfaceFromName(networkInterface)))) {
