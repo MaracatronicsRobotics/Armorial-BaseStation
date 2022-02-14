@@ -1,70 +1,73 @@
-# Prerequisites
-*.d
+# This file is used to ignore files which are generated
+# ----------------------------------------------------------------------------
 
-# Compiled Object files
-*.slo
-*.lo
+*~
+*.autosave
+*.a
+*.core
+*.moc
 *.o
 *.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
+*.orig
+*.rej
 *.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
+*.so.*
+*_pch.h.cpp
+*_resource.rc
+*.qm
+.#*
+*.*#
+core
+!core/
+tags
+.DS_Store
+.directory
+*.debug
+Makefile*
+*.prl
 *.app
-
-# Qt-es
-object_script.*.Release
-object_script.*.Debug
-*_plugin_import.cpp
+moc_*.cpp
+ui_*.h
+qrc_*.cpp
+Thumbs.db
+*.res
+*.rc
 /.qmake.cache
 /.qmake.stash
-*.pro.user
-*.pro.user.*
-*.qbs.user
-*.qbs.user.*
-*.moc
-moc_*.cpp
-moc_*.h
-qrc_*.cpp
-ui_*.h
-*.qmlc
-*.jsc
-Makefile*
-*build-*
 
-# Qt unit tests
-target_wrapper.*
+# qtcreator generated files
+*.pro.user*
 
-# QtCreator
-*.autosave
+# xemacs temporary files
+*.flc
 
-# QtCreator Qml
-*.qmlproject.user
+# Vim temporary files
+.*.swp
 
-*.qmlproject.user.*
+# Visual Studio generated files
+*.ib_pdb_index
+*.idb
+*.ilk
+*.pdb
+*.sln
+*.suo
+*.vcproj
+*vcproj.*.*.user
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj
+*vcxproj.*
 
-# QtCreator CMake
-CMakeLists.txt.user*
+# MinGW generated files
+*.Debug
+*.Release
 
-# Delete build folder
-build/
-bin/
+# Python byte code
+*.pyc
+
+# Binaries
+# --------
+*.dll
+*.exe
+
