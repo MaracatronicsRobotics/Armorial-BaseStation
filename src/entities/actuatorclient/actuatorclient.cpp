@@ -22,10 +22,13 @@
 
 #include "actuatorclient.h"
 
-ActuatorClient::ActuatorClient(QString actuatorServiceAddress, quint16 actuatorServicePort, BaseActuator *actuator) {
+#include <src/utils/text/text.h>
+
+ActuatorClient::ActuatorClient(QString actuatorServiceAddress, quint16 actuatorServicePort, BaseActuator *actuator, Constants *constants) {
     _actuatorServiceAddress = actuatorServiceAddress;
     _actuatorServicePort = actuatorServicePort;
     _actuator = actuator;
+    _constants = constants;
 }
 
 QString ActuatorClient::name() {
@@ -44,11 +47,19 @@ void ActuatorClient::connectToServer() {
     _stub = Actuator::ActuatorService::NewStub(_channel);
 }
 
+Constants* ActuatorClient::getConstants() {
+    if(_constants == nullptr) {
+        std::cout << Text::yellow("[WARNING] ", true) + Text::bold("Constants with nullptr value at ActuatorClient.\n");
+    }
+
+    return _constants;
+}
+
 void ActuatorClient::initialization() {
     connectToServer();
 
     // Initialize QTimer for each robot
-    for(int i = 0; i < 12; i++) {
+    for(int i = 0; i < 12; i++) { // constante
         Timer *timer = new Timer();
         timer->start();
         _timers.insert(i, timer);
@@ -56,10 +67,10 @@ void ActuatorClient::initialization() {
 }
 
 void ActuatorClient::loop() {
-    for(int i = 0; i < 12; i++) {
+    for(int i = 0; i < 12; i++) { // constante
         _timers.value(i)->stop();
 
-        if(_timers.value(i)->getMiliSeconds() >= 1000.0) {
+        if(_timers.value(i)->getMiliSeconds() >= 1000.0) { // constante
             _actuator->sendZeroData(i);
         }
     }

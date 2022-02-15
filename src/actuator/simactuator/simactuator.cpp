@@ -23,17 +23,18 @@
 
 #include <src/utils/text/text.h>
 
-SimActuator::SimActuator(QString actuatorAddress, quint16 actuatorPort, Color teamColor) {
+SimActuator::SimActuator(QString actuatorAddress, quint16 actuatorPort, Color teamColor, Constants *constants) {
     _actuatorAddress = actuatorAddress;
     _actuatorPort = actuatorPort;
     _teamColor = teamColor;
+    _constants = constants;
 
     connectToNetwork();
 }
 
 SimActuator::~SimActuator() {
     // Send zero-packet to each robot in the field
-    for(int robotId = 0; robotId <= 11; robotId++) {
+    for(int robotId = 0; robotId <= 11; robotId++) { // constante
         sendZeroData(robotId);
     }
 
@@ -88,6 +89,14 @@ void SimActuator::sendZeroData(int robotId) {
     packet.set_allocated_robotidentifier(robotIdentifier);
 
     sendData(packet);
+}
+
+Constants* SimActuator::getConstants() {
+    if(_constants == nullptr) {
+        std::cout << Text::yellow("[WARNING] ", true) + Text::bold("Constants with nullptr value at SimActuator.\n");
+    }
+
+    return _constants;
 }
 
 void SimActuator::connectToNetwork() {

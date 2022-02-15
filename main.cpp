@@ -1,6 +1,7 @@
 #include <QCoreApplication>
 
 #include <src/exithandler.h>
+#include <src/constants/constants.h>
 #include <src/actuator/simactuator/simactuator.h>
 #include <src/entities/actuatorclient/actuatorclient.h>
 
@@ -10,11 +11,13 @@ int main(int argc, char *argv[]) {
     ExitHandler::setApplication(&a);
     ExitHandler::setup();
 
-    Color teamColor;
-    teamColor.set_isblue(false);
+    Constants *constants = new Constants("/src/constants/constants.json");
 
-    BaseActuator *actuator = new SimActuator("127.0.0.1", 20011, teamColor);
-    ActuatorClient *actuatorClient = new ActuatorClient("localhost", 50054, actuator);
+    Color teamColor;
+    teamColor.set_isblue(false); // constante
+
+    BaseActuator *actuator = new SimActuator("127.0.0.1", 20011, teamColor, constants); // constante
+    ActuatorClient *actuatorClient = new ActuatorClient("localhost", 50054, actuator, constants); // constante
 
     actuatorClient->start();
 
@@ -25,6 +28,7 @@ int main(int argc, char *argv[]) {
 
     delete actuator;
     delete actuatorClient;
+    delete constants;
 
     return exec;
 }
