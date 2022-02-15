@@ -14,10 +14,10 @@ int main(int argc, char *argv[]) {
     Constants *constants = new Constants(QString(PROJECT_PATH) + "/src/constants/constants.json");
 
     Color teamColor;
-    teamColor.set_isblue(false); // constante
+    teamColor.set_isblue(constants->isTeamBlue());
 
-    BaseActuator *actuator = new SimActuator("127.0.0.1", 20011, teamColor, constants); // constante
-    ActuatorClient *actuatorClient = new ActuatorClient("localhost", 50054, actuator, constants); // constante
+    BaseActuator *actuator = new SimActuator(constants);
+    ActuatorClient *actuatorClient = new ActuatorClient(actuator, constants);
 
     actuatorClient->start();
 

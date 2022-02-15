@@ -31,7 +31,7 @@
 class SimActuator : public BaseActuator
 {
 public:
-    SimActuator(QString actuatorAddress, quint16 actuatorPort, Color teamColor, Constants* constants);
+    SimActuator(Constants* constants);
     ~SimActuator();
 
     void sendData(ControlPacket packet);

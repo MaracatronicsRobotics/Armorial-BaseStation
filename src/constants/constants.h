@@ -51,6 +51,9 @@ public:
     quint16 getSimPort() const;
     void setSimPort(const quint16 &SimPort);
 
+    float getTimeToSendPacketZero() const;
+    void setTimeToSendPacketZero(float timeToSendPacketZero);
+
 private:
     QString _fileName;
     QFile file;
@@ -65,6 +68,7 @@ private:
     // Team Constants
     QString _teamColor;
     int _qtdPlayers;
+    float _timeToSendPacketZero;
 
 };
 
