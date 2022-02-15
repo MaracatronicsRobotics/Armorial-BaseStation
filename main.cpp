@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     ExitHandler::setApplication(&a);
     ExitHandler::setup();
 
-    Constants *constants = new Constants("/src/constants/constants.json");
+    Constants *constants = new Constants(QString(PROJECT_PATH) + "/src/constants/constants.json");
 
     Color teamColor;
     teamColor.set_isblue(false); // constante

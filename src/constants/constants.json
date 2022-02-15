@@ -1,2 +1,9 @@
 {
+    "GRPCAddress": "localhost",
+    "GRPCPort": "1234",
+    "SimAddress": "localhost",
+    "SimPort": "1234",
+    
+    "teamColor": "yellow",
+    "qtdPlayers": 11
 }

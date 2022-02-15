@@ -21,7 +21,113 @@
 
 
 #include "constants.h"
+#include <iostream>
+#include <src/utils/text/text.h>
 
 Constants::Constants(QString fileName) {
     _fileName = fileName;
+
+    file.setFileName(_fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QString val = file.readAll();
+    file.close();
+
+    QJsonDocument document = QJsonDocument::fromJson(val.toUtf8());
+
+    QJsonObject docObject = document.object();
+    QVariantMap doc_map = docObject.toVariantMap();
+
+    _GRPCAddress = doc_map["GRPCAddress"].toString();
+    std::cout << Text::bold("GRPC Address: " + _GRPCAddress.toStdString()) << std::endl;
+
+    _GRPCPort = doc_map["GRPCPort"].toInt();
+    std::cout << Text::bold("GRPC Port: " + std::to_string(_GRPCPort)) << std::endl;
+
+    _SimAddress = doc_map["SimAddress"].toString();
+    std::cout << Text::bold("Simulator Address: " + _SimAddress.toStdString()) << std::endl;
+
+    _SimPort = doc_map["SimPort"].toInt();
+    std::cout << Text::bold("Simulator Port: " + std::to_string(_SimPort)) << std::endl;
+
+    _teamColor = doc_map["teamColor"].toString();
+    std::cout << Text::bold("Team Color: " + _teamColor.toStdString()) << std::endl;
+
+    _qtdPlayers = doc_map["qtdPlayers"].toInt();
+    std::cout << Text::bold("Number of players: " + std::to_string(_qtdPlayers)) << std::endl;
+
 }
+
+bool Constants::isTeamBlue(){
+    if (getTeamColor() == "blue"){
+        return true;
+    }
+    return false;
+}
+
+bool Constants::isTeamYellow(){
+    if (getTeamColor() == "yellow"){
+        return true;
+    }
+    return false;
+}
+
+QString Constants::getTeamColor() const
+{
+    return _teamColor;
+}
+
+void Constants::setTeamColor(const QString &teamColor)
+{
+    _teamColor = teamColor;
+}
+
+int Constants::getQtdPlayers() const
+{
+    return _qtdPlayers;
+}
+
+void Constants::setQtdPlayers(int qtdPlayers)
+{
+    _qtdPlayers = qtdPlayers;
+}
+
+QString Constants::getGRPCAddress() const
+{
+    return _GRPCAddress;
+}
+
+void Constants::setGRPCAddress(const QString &GRPCAddress)
+{
+    _GRPCAddress = GRPCAddress;
+}
+
+quint16 Constants::getGRPCPort() const
+{
+    return _GRPCPort;
+}
+
+void Constants::setGRPCPort(const quint16 &GRPCPort)
+{
+    _GRPCPort = GRPCPort;
+}
+
+QString Constants::getSimAddress() const
+{
+    return _SimAddress;
+}
+
+void Constants::setSimAddress(const QString &SimAddress)
+{
+    _SimAddress = SimAddress;
+}
+
+quint16 Constants::getSimPort() const
+{
+    return _SimPort;
+}
+
+void Constants::setSimPort(const quint16 &SimPort)
+{
+    _SimPort = SimPort;
+}
+

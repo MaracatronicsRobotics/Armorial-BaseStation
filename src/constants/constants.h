@@ -24,14 +24,48 @@
 #define CONSTANTS_H
 
 #include <QString>
+#include <QtCore>
 
 class Constants
 {
 public:
     Constants(QString fileName);
 
+    bool isTeamBlue();
+    bool isTeamYellow();
+    QString getTeamColor() const;
+    void setTeamColor(const QString &teamColor);
+
+    int getQtdPlayers() const;
+    void setQtdPlayers(int qtdPlayers);
+
+    QString getGRPCAddress() const;
+    void setGRPCAddress(const QString &GRPCAddress);
+
+    quint16 getGRPCPort() const;
+    void setGRPCPort(const quint16 &GRPCPort);
+
+    QString getSimAddress() const;
+    void setSimAddress(const QString &SimAddress);
+
+    quint16 getSimPort() const;
+    void setSimPort(const quint16 &SimPort);
+
 private:
     QString _fileName;
+    QFile file;
+
+    // Network Constants
+    QString _GRPCAddress;
+    quint16 _GRPCPort;
+
+    QString _SimAddress;
+    quint16 _SimPort;
+
+    // Team Constants
+    QString _teamColor;
+    int _qtdPlayers;
+
 };
 
 #endif // CONSTANTS_H
