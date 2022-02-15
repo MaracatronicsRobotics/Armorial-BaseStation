@@ -1,6 +1,3 @@
-[submodule "Armorial-Proto"]
-	path = Armorial-Proto
-	url = https://github.com/MaracatronicsRobotics/Armorial-Proto
 [submodule "proto"]
 	path = proto
 	url = https://github.com/MaracatronicsRobotics/Armorial-Proto
