@@ -19,38 +19,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
-#ifndef SIMACTUATOR_H
-#define SIMACTUATOR_H
 
-#include <QUdpSocket>
+#ifndef CONSTANTS_H
+#define CONSTANTS_H
 
-#include <src/constants/constants.h>
-#include <src/actuator/baseactuator.h>
-#include <proto/grSim_Packet.pb.h>
+#include <QString>
 
-class SimActuator : public BaseActuator
+class Constants
 {
 public:
-    SimActuator(QString actuatorAddress, quint16 actuatorPort, Color teamColor, Constants* constants);
-    ~SimActuator();
-
-    void sendData(ControlPacket packet);
-    void sendZeroData(int robotId);
+    Constants(QString fileName);
 
 private:
-    // Network info
-    QString _actuatorAddress;
-    quint16 _actuatorPort;
-    Color _teamColor;
-
-    // Constants
-    Constants *_constants;
-    Constants* getConstants();
-
-    // Socket to send data to grSim
-    QUdpSocket *_actuatorClient;
-    void connectToNetwork();
-    void finishConnection();
+    QString _fileName;
 };
 
-#endif // SIMACTUATOR_H
+#endif // CONSTANTS_H

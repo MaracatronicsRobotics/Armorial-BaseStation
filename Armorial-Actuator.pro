@@ -31,6 +31,9 @@ system(echo "generating grsim .proto" && cd proto/grsim && protoc --cpp_out=../ 
 # depend on your compiler). Please consult the documentation of the
 # deprecated API in order to know how to port your code away from it.
 DEFINES += QT_DEPRECATED_WARNINGS
+DEFINES += APP_NAME=\\\"$$TARGET\\\"
+DEFINES += APP_VERSION=\\\"$$VERSION\\\"
+DEFINES += PROJECT_PATH=\\\"$${PWD}\\\"
 
 # You can also make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -54,6 +57,7 @@ SOURCES += \
         proto/visionservice.pb.cc \
         src/actuator/baseactuator.cpp \
         src/actuator/simactuator/simactuator.cpp \
+        src/constants/constants.cpp \
         src/entities/actuatorclient/actuatorclient.cpp \
         src/entities/entity.cpp \
         src/exithandler.cpp \
@@ -81,6 +85,7 @@ HEADERS += \
     proto/visionservice.pb.h \
     src/actuator/baseactuator.h \
     src/actuator/simactuator/simactuator.h \
+    src/constants/constants.h \
     src/entities/actuatorclient/actuatorclient.h \
     src/entities/entity.h \
     src/exithandler.h \

@@ -38,13 +38,14 @@
 #include <QList>
 #include <QTimer>
 #include <src/entities/entity.h>
+#include <src/constants/constants.h>
 #include <src/actuator/baseactuator.h>
 #include <proto/actuatorservice.grpc.pb.h>
 
 class ActuatorClient : public Entity
 {
 public:
-    ActuatorClient(QString actuatorServiceAddress, quint16 actuatorServicePort, BaseActuator *actuator);
+    ActuatorClient(QString actuatorServiceAddress, quint16 actuatorServicePort, BaseActuator *actuator, Constants *constants);
 
     QString name();
 
@@ -57,6 +58,10 @@ private:
     void initialization();
     void loop();
     void finalization();
+
+    // Constants
+    Constants *_constants;
+    Constants* getConstants();
 
     // gRPC channel related network methods and vars
     std::unique_ptr<Actuator::ActuatorService::Stub> _stub;
