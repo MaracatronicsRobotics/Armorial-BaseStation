@@ -38,22 +38,25 @@ Constants::Constants(QString fileName) {
     QVariantMap doc_map = docObject.toVariantMap();
 
     _GRPCAddress = doc_map["GRPCAddress"].toString();
-    std::cout << Text::bold("GRPC Address: " + _GRPCAddress.toStdString()) << std::endl;
+    std::cout << Text::bold("GRPC Address: ") + Text::green(_GRPCAddress.toStdString(), true) << std::endl;
 
     _GRPCPort = doc_map["GRPCPort"].toInt();
-    std::cout << Text::bold("GRPC Port: " + std::to_string(_GRPCPort)) << std::endl;
+    std::cout << Text::bold("GRPC Port: ") + Text::green(std::to_string(_GRPCPort), true) << std::endl;
 
     _SimAddress = doc_map["SimAddress"].toString();
-    std::cout << Text::bold("Simulator Address: " + _SimAddress.toStdString()) << std::endl;
+    std::cout << Text::bold("Simulator Address: ") + Text::green(_SimAddress.toStdString(), true) << std::endl;
 
     _SimPort = doc_map["SimPort"].toInt();
-    std::cout << Text::bold("Simulator Port: " + std::to_string(_SimPort)) << std::endl;
+    std::cout << Text::bold("Simulator Port: ") + Text::green(std::to_string(_SimPort), true) << std::endl;
 
     _teamColor = doc_map["teamColor"].toString();
-    std::cout << Text::bold("Team Color: " + _teamColor.toStdString()) << std::endl;
+    std::cout << Text::bold("Team Color: ") + Text::green(_teamColor.toStdString(), true) << std::endl;
 
     _qtdPlayers = doc_map["qtdPlayers"].toInt();
-    std::cout << Text::bold("Number of players: " + std::to_string(_qtdPlayers)) << std::endl;
+    std::cout << Text::bold("Number of players: ") + Text::green(std::to_string(_qtdPlayers), true) << std::endl;
+
+    _timeToSendPacketZero = doc_map["timeToSendPacketZero"].toFloat();
+    std::cout << Text::bold("Time to send packet zero: ") + Text::green(std::to_string(_timeToSendPacketZero), true) << std::endl;
 
 }
 
@@ -129,5 +132,15 @@ quint16 Constants::getSimPort() const
 void Constants::setSimPort(const quint16 &SimPort)
 {
     _SimPort = SimPort;
+}
+
+float Constants::getTimeToSendPacketZero() const
+{
+    return _timeToSendPacketZero;
+}
+
+void Constants::setTimeToSendPacketZero(float timeToSendPacketZero)
+{
+    _timeToSendPacketZero = timeToSendPacketZero;
 }
 

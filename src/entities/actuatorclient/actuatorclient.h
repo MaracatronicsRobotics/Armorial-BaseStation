@@ -45,7 +45,7 @@
 class ActuatorClient : public Entity
 {
 public:
-    ActuatorClient(QString actuatorServiceAddress, quint16 actuatorServicePort, BaseActuator *actuator, Constants *constants);
+    ActuatorClient(BaseActuator *actuator, Constants *constants);
 
     QString name();
 

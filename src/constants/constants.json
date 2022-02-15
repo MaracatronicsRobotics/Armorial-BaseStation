@@ -1,9 +1,10 @@
 {
     "GRPCAddress": "localhost",
-    "GRPCPort": "1234",
-    "SimAddress": "localhost",
-    "SimPort": "1234",
+    "GRPCPort": "50054",
+    "SimAddress": "127.0.0.1",
+    "SimPort": "20011",
     
     "teamColor": "yellow",
-    "qtdPlayers": 11
+    "qtdPlayers": 11,
+    "timeToSendPacketZero": 1000.0
 }

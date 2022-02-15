@@ -24,11 +24,12 @@
 
 #include <src/utils/text/text.h>
 
-ActuatorClient::ActuatorClient(QString actuatorServiceAddress, quint16 actuatorServicePort, BaseActuator *actuator, Constants *constants) {
-    _actuatorServiceAddress = actuatorServiceAddress;
-    _actuatorServicePort = actuatorServicePort;
-    _actuator = actuator;
+ActuatorClient::ActuatorClient(BaseActuator *actuator, Constants *constants) {
     _constants = constants;
+
+    _actuatorServiceAddress = getConstants()->getGRPCAddress();
+    _actuatorServicePort = getConstants()->getGRPCPort();
+    _actuator = actuator;
 }
 
 QString ActuatorClient::name() {
@@ -59,18 +60,21 @@ void ActuatorClient::initialization() {
     connectToServer();
 
     // Initialize QTimer for each robot
-    for(int i = 0; i < 12; i++) { // constante
+    for(int i = 0; i <= getConstants()->getQtdPlayers(); i++) {
         Timer *timer = new Timer();
         timer->start();
         _timers.insert(i, timer);
     }
+
+    // Debug to notify connection
+    std::cout << Text::blue("[ACTUATOR CLIENT] ", true) + Text::bold("Connected to gRPC in address ") + Text::green(_actuatorServiceAddress.toStdString() + ":" + std::to_string(_actuatorServicePort), true) + '\n';
 }
 
 void ActuatorClient::loop() {
-    for(int i = 0; i < 12; i++) { // constante
+    for(int i = 0; i <= getConstants()->getQtdPlayers(); i++) {
         _timers.value(i)->stop();
 
-        if(_timers.value(i)->getMiliSeconds() >= 1000.0) { // constante
+        if(_timers.value(i)->getMiliSeconds() >= getConstants()->getTimeToSendPacketZero()) { // constante
             _actuator->sendZeroData(i);
         }
     }
@@ -90,5 +94,5 @@ void ActuatorClient::loop() {
 }
 
 void ActuatorClient::finalization() {
-
+    std::cout << Text::blue("[ACTUATOR CLIENT] ", true) + Text::bold("Disconnected from gRPC server.\n");
 }

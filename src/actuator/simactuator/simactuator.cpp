@@ -23,18 +23,23 @@
 
 #include <src/utils/text/text.h>
 
-SimActuator::SimActuator(QString actuatorAddress, quint16 actuatorPort, Color teamColor, Constants *constants) {
-    _actuatorAddress = actuatorAddress;
-    _actuatorPort = actuatorPort;
-    _teamColor = teamColor;
+SimActuator::SimActuator(Constants *constants) {
     _constants = constants;
+
+    _actuatorAddress = getConstants()->getSimAddress();
+    _actuatorPort = getConstants()->getSimPort();
+
+    Color teamColor;
+    teamColor.set_isblue(getConstants()->isTeamBlue());
+    _teamColor = teamColor;
+
 
     connectToNetwork();
 }
 
 SimActuator::~SimActuator() {
     // Send zero-packet to each robot in the field
-    for(int robotId = 0; robotId <= 11; robotId++) { // constante
+    for(int robotId = 0; robotId <= getConstants()->getQtdPlayers(); robotId++) {
         sendZeroData(robotId);
     }
 
@@ -107,12 +112,16 @@ void SimActuator::connectToNetwork() {
     }
 
     _actuatorClient->connectToHost(_actuatorAddress, _actuatorPort, QIODevice::WriteOnly, QAbstractSocket::IPv4Protocol);
+
+    std::cout << Text::blue("[SIM ACTUATOR] ", true) + Text::bold("Connected to grSim in address ") + Text::green(_actuatorAddress.toStdString() + ":" + std::to_string(_actuatorPort), true) + '\n';
 }
 
 void SimActuator::finishConnection() {
     if(_actuatorClient->isOpen()) {
         _actuatorClient->close();
     }
+
+    std::cout << Text::blue("[SIM ACTUATOR] ", true) + Text::bold("Disconnected from grSim.\n");
 
     delete _actuatorClient;
 }
