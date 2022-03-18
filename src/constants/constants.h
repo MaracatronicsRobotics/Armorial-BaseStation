@@ -26,6 +26,9 @@
 #include <QString>
 #include <QtCore>
 
+#include <proto/messages.pb.h>
+using namespace Armorial;
+
 class Constants
 {
 public:

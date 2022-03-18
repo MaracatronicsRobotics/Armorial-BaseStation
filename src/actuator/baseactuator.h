@@ -32,7 +32,7 @@ public:
     BaseActuator();
     virtual ~BaseActuator();
 
-    virtual void sendData(ControlPacket packet) = 0;
+    virtual void sendData(Armorial::ControlPacket packet) = 0;
     virtual void sendZeroData(int robotId) = 0;
 };
 
