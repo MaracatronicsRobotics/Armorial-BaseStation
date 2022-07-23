@@ -1,5 +1,3 @@
-QT -= gui
-
 TEMPLATE = app
 DESTDIR  = ../bin
 TARGET   = Armorial-Actuator
@@ -13,18 +11,14 @@ RCC_DIR = tmp/rc
 
 CONFIG += c++17 console
 CONFIG -= app_bundle
-QT += core \
-        gui \
-        widgets \
-        network \
-        opengl
+QT += core network
 
 DEFINES += QT_DEPRECATED_WARNINGS
-LIBS += -lQt5Core -lprotobuf -lgrpc++
+LIBS += -lQt5Core -lprotobuf -lgrpc -lgrpc++ -lGLU -lfmt -lArmorial
 
-system(echo "compiling protobuf" && cd proto/services && protoc --grpc_out=../ --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` *.proto && cd ../../..)
-system(echo "compiling protobuf" && cd proto/services && protoc --cpp_out=../ *.proto && cd ../../..)
-system(echo "generating grsim .proto" && cd proto/grsim && protoc --cpp_out=../ *.proto && cd ../../..)
+system(echo "Generating service GRPC headers" && cd include/proto/services && protoc --grpc_out=../ --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` *.proto && cd ../../..)
+system(echo "Generating service proto headers" && cd include/proto/services && protoc --cpp_out=../ *.proto && cd ../../..)
+system(echo "Generating simulation proto headers" && cd include/proto/simulation && protoc --cpp_out=../ *.proto && cd ../../..)
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -41,57 +35,56 @@ DEFINES += PROJECT_PATH=\\\"$${PWD}\\\"
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+        include/proto/actuatorservice.grpc.pb.cc \
+        include/proto/actuatorservice.pb.cc \
+        include/proto/coachservice.grpc.pb.cc \
+        include/proto/coachservice.pb.cc \
+        include/proto/messages.grpc.pb.cc \
+        include/proto/messages.pb.cc \
+        include/proto/sensorservice.grpc.pb.cc \
+        include/proto/sensorservice.pb.cc \
+        include/proto/ssl_gc_common.pb.cc \
+        include/proto/ssl_simulation_config.pb.cc \
+        include/proto/ssl_simulation_control.pb.cc \
+        include/proto/ssl_simulation_error.pb.cc \
+        include/proto/ssl_simulation_robot_control.pb.cc \
+        include/proto/ssl_simulation_robot_feedback.pb.cc \
+        include/proto/ssl_simulation_synchronous.pb.cc \
+        include/proto/ssl_vision_detection.pb.cc \
+        include/proto/ssl_vision_geometry.pb.cc \
+        include/proto/visionservice.grpc.pb.cc \
+        include/proto/visionservice.pb.cc \
         main.cpp \
-        proto/actuatorservice.grpc.pb.cc \
-        proto/actuatorservice.pb.cc \
-        proto/coachservice.grpc.pb.cc \
-        proto/coachservice.pb.cc \
-        proto/grSim_Commands.pb.cc \
-        proto/grSim_Packet.pb.cc \
-        proto/grSim_Replacement.pb.cc \
-        proto/messages.grpc.pb.cc \
-        proto/messages.pb.cc \
-        proto/sensorservice.grpc.pb.cc \
-        proto/sensorservice.pb.cc \
-        proto/visionservice.grpc.pb.cc \
-        proto/visionservice.pb.cc \
-        src/actuator/baseactuator.cpp \
-        src/actuator/simactuator/simactuator.cpp \
-        src/constants/constants.cpp \
-        src/entities/actuatorclient/actuatorclient.cpp \
-        src/entities/entity.cpp \
-        src/exithandler.cpp \
-        src/utils/text/text.cpp \
-        src/utils/timer/timer.cpp
+        src/actuators/baseactuator.cpp \
+        src/actuators/sim/simulationactuator.cpp \
+        src/client/actuatorclient.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-HEADERS += \
-    proto/actuatorservice.grpc.pb.h \
-    proto/actuatorservice.pb.h \
-    proto/coachservice.grpc.pb.h \
-    proto/coachservice.pb.h \
-    proto/grSim_Commands.pb.h \
-    proto/grSim_Packet.pb.h \
-    proto/grSim_Replacement.pb.h \
-    proto/messages.grpc.pb.h \
-    proto/messages.pb.h \
-    proto/sensorservice.grpc.pb.h \
-    proto/sensorservice.pb.h \
-    proto/visionservice.grpc.pb.h \
-    proto/visionservice.pb.h \
-    src/actuator/baseactuator.h \
-    src/actuator/simactuator/simactuator.h \
-    src/constants/constants.h \
-    src/entities/actuatorclient/actuatorclient.h \
-    src/entities/entity.h \
-    src/exithandler.h \
-    src/utils/text/text.h \
-    src/utils/timer/timer.h
+HEADERS += \ \
+    include/proto/actuatorservice.grpc.pb.h \
+    include/proto/actuatorservice.pb.h \
+    include/proto/coachservice.grpc.pb.h \
+    include/proto/coachservice.pb.h \
+    include/proto/messages.grpc.pb.h \
+    include/proto/messages.pb.h \
+    include/proto/sensorservice.grpc.pb.h \
+    include/proto/sensorservice.pb.h \
+    include/proto/ssl_gc_common.pb.h \
+    include/proto/ssl_simulation_config.pb.h \
+    include/proto/ssl_simulation_control.pb.h \
+    include/proto/ssl_simulation_error.pb.h \
+    include/proto/ssl_simulation_robot_control.pb.h \
+    include/proto/ssl_simulation_robot_feedback.pb.h \
+    include/proto/ssl_simulation_synchronous.pb.h \
+    include/proto/ssl_vision_detection.pb.h \
+    include/proto/ssl_vision_geometry.pb.h \
+    include/proto/visionservice.grpc.pb.h \
+    include/proto/visionservice.pb.h \
+    src/actuators/baseactuator.h \
+    src/actuators/sim/simulationactuator.h \
+    src/client/actuatorclient.h
 
-DISTFILES += \
-    proto/LICENSE \
-    proto/README.md
