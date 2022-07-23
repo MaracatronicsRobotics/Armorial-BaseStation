@@ -22,18 +22,37 @@
 #ifndef BASE_ACTUATOR_H
 #define BASE_ACTUATOR_H
 
-#include <QMutex>
+#include <include/proto/messages.pb.h>
 
-#include <proto/messages.pb.h>
-
+/*!
+ * \brief The BaseActuator class provides a interface for the actuator implementations.
+ */
 class BaseActuator
 {
 public:
-    BaseActuator();
-    virtual ~BaseActuator();
+    /*!
+     * \brief BaseActuator default constructor.
+     */
+    BaseActuator() = default;
 
-    virtual void sendData(Armorial::ControlPacket packet) = 0;
-    virtual void sendZeroData(int robotId) = 0;
+    /*!
+     * \brief ~BaseActuator virtual destructor.
+     */
+    virtual ~BaseActuator() = default;
+
+    /*!
+     * \brief Virtual sendData that allows the children implementation to interpret and send the control packet
+     *  to the robots.
+     * \param packet The control packet which will be sent.
+     */
+    virtual void sendData(const Armorial::ControlPacket& packet) = 0;
+
+    /*!
+     * \brief Virtual sendZeroData that allows the children implementation to send a zero-control packet
+     * to the robots.
+     * \param robotIdentifier The robot identifier which will receive the data.
+     */
+    virtual void sendZeroData(const Armorial::RobotIdentifier& robotIdentifier) = 0;
 };
 
 #endif // BASE_ACTUATOR_H
