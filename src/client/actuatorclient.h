@@ -42,11 +42,6 @@ public:
      */
     ActuatorClient(QString serviceAddress, quint16 servicePort, BaseActuator *actuator);
 
-    /*!
-     * \return The name of this client.
-     */
-    QString name();
-
 private:
     /*!
      * \brief Override from Threaded::Entity::initialization() to initialize the client and its dependencies.

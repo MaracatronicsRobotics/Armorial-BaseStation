@@ -30,17 +30,13 @@ ActuatorClient::ActuatorClient(QString serviceAddress, quint16 servicePort, Base
     _actuator = actuator;
 }
 
-QString ActuatorClient::name() {
-    return "ActuatorClient";
-}
-
 void ActuatorClient::initialization() {
     // Try to connect to server
     if(connectToServer(true)) {
-        spdlog::info("[{}] Connected to actuator service at address '{}' and port '{}'.", name().toStdString(), getServiceAddress().toStdString(), getServicePort());
+        spdlog::info("[{}] Connected to actuator service at address '{}' and port '{}'.", clientName().toStdString(), getServiceAddress().toStdString(), getServicePort());
     }
     else {
-        spdlog::error("[{}] Failed to connect to actuator service at address '{}' and port '{}'.", name().toStdString(), getServiceAddress().toStdString(), getServicePort());
+        spdlog::error("[{}] Failed to connect to actuator service at address '{}' and port '{}'.", clientName().toStdString(), getServiceAddress().toStdString(), getServicePort());
         return ;
     }
 }
@@ -48,14 +44,14 @@ void ActuatorClient::initialization() {
 void ActuatorClient::loop() {
     // Check if is disconnected from server and try to reconnect
     if(!isConnectedToServer()) {
-        spdlog::warn("[{}] Disconnected from actuator service, trying to reconnect...", name().toStdString());
+        spdlog::warn("[{}] Disconnected from actuator service, trying to reconnect...", clientName().toStdString());
         bool couldRecconect = connectToServer(true);
 
         if(couldRecconect) {
-            spdlog::info("[{}] Succesfully recconected to actuator service at address '{}' and port '{}'.", name().toStdString(), getServiceAddress().toStdString(), getServicePort());
+            spdlog::info("[{}] Succesfully recconected to actuator service at address '{}' and port '{}'.", clientName().toStdString(), getServiceAddress().toStdString(), getServicePort());
         }
         else {
-            spdlog::warn("[{}] Reconnection attempt to actuator service at address '{}' and port '{}' failed.", name().toStdString(), getServiceAddress().toStdString(), getServicePort());
+            spdlog::warn("[{}] Reconnection attempt to actuator service at address '{}' and port '{}' failed.", clientName().toStdString(), getServiceAddress().toStdString(), getServicePort());
             return ;
         }
     }
@@ -71,9 +67,23 @@ void ActuatorClient::loop() {
         // Send data to actuator
         _actuator->sendData(packet);
 
+        spdlog::info("{} {} {} {}", packet.robotidentifier().robotid(), packet.robotidentifier().robotcolor().isblue(), packet.w1(), packet.w2());
+
         // Mark robot as received to further send zero packet
         _receivedCommands[packet.robotidentifier().robotcolor().isblue()][packet.robotidentifier().robotid()] = true;
     }
+
+//    Armorial::ControlPacket pok;
+//    pok.set_w1(-255.0);
+//    pok.set_w2(255.0);
+
+//    Armorial::RobotIdentifier *teste = new Armorial::RobotIdentifier();
+//    teste->set_robotid(2);
+//    Armorial::Color *robotColor = new Armorial::Color(); robotColor->set_isblue(false);
+//    teste->set_allocated_robotcolor(robotColor);
+//    pok.set_allocated_robotidentifier(teste);
+
+//    _actuator->sendData(pok);
 }
 
 void ActuatorClient::finalization() {
@@ -94,5 +104,5 @@ void ActuatorClient::finalization() {
         }
     }
 
-    spdlog::info("[{}] Disconnected from actuator service.", name().toStdString());
+    spdlog::info("[{}] Disconnected from actuator service.", clientName().toStdString());
 }

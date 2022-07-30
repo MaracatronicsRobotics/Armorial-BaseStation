@@ -19,26 +19,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
-#ifndef SIMULATIONACTUATOR_H
-#define SIMULATIONACTUATOR_H
+#ifndef RADIOACTUATOR_H
+#define RADIOACTUATOR_H
 
-#include <Armorial/Base/Client/Client.h>
-
-#include <include/proto/ssl_simulation_robot_control.pb.h>
-#include <include/proto/packet.pb.h>
+#include <QSerialPort>
 #include <src/actuators/baseactuator.h>
 
 /*!
- * \brief The SimulationActuator class provides a interface to communicate with the simulation (grSim / simulator-cli)
+ * \brief The RadioActuator class provides a interface to communicate with the robots using
+ * the defined communication protocol through a serial port
  */
-class SimulationActuator : public BaseActuator, public Base::UDP::Client
+class RadioActuator : public BaseActuator
 {
 public:
     /*!
      * \brief SimulationActuator constructor.
-     * \param serverAddress, serverPort The network parameters which the actuator will be connected to.
+     * \param serialPort The serial port which the RadioActuator will use to send the data.
      */
-    SimulationActuator(QString serverAddress, quint16 serverPort);
+    RadioActuator(QString serialPortName);
+
+    ~RadioActuator();
 
     /*!
      * \brief sendData Override from parent that describes how to send a given data using this actuator.
@@ -51,6 +51,15 @@ public:
      * \param robotIdentifier The given identifier.
      */
     void sendZeroData(const Armorial::RobotIdentifier& robotIdentifier);
+
+private:
+    QSerialPort *_serialPort;
+    QString _serialPortName;
+
+    /*!
+     * \brief Try to open serial port with the defined name
+     */
+    void openSerialPort();
 };
 
-#endif // SIMULATIONACTUATOR_H
+#endif // RADIOACTUATOR_H

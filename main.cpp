@@ -22,12 +22,14 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QRegularExpression>
+#include <QSerialPortInfo>
 
 #include <Armorial/Utils/ExitHandler/ExitHandler.h>
 #include <Armorial/Threaded/EntityManager/EntityManager.h>
 
 #include <src/client/actuatorclient.h>
 #include <src/actuators/sim/simulationactuator.h>
+#include <src/actuators/radio/radioactuator.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/color.h>
@@ -47,13 +49,19 @@ int main(int argc, char *argv[]) {
                                       QCoreApplication::translate("main", "<address>:<port>"));
     parser.addOption(serviceNetworkOpt);
 
-    // Mode (sim / real)
+    // Mode (sim / radio)
     QCommandLineOption actuatorModeOpt("mode",
                                     QCoreApplication::translate("main", "Set actuator mode"),
-                                    QCoreApplication::translate("main", "<sim | real>"));
+                                    QCoreApplication::translate("main", "<sim | radio>"));
     parser.addOption(actuatorModeOpt);
 
-    // Mode (sim / real)
+    // Serial port name
+    QCommandLineOption serialPortOpt("serial",
+                                    QCoreApplication::translate("main", "Set serial port"),
+                                    QCoreApplication::translate("main", "<serial_port>"));
+    parser.addOption(serialPortOpt);
+
+    // Simulator address
     QCommandLineOption simAddressOpt("simAddress",
                                   QCoreApplication::translate("main", "Set sim address"),
                                   QCoreApplication::translate("main", "<address>"));
@@ -73,6 +81,7 @@ int main(int argc, char *argv[]) {
     QString actuatorMode = "sim";
     QString simAddress = "127.0.0.1";
     QString teamColor = "blue";
+    QString serialPortName = "";
 
     // Parse options
     // Parse service network
@@ -88,18 +97,66 @@ int main(int argc, char *argv[]) {
             serviceNetwork = parsedValue;
         }
     }
+    else {
+        spdlog::warn("There is no service network provided, so it will run by default at {}.", fmt::format(fmt::bg(fmt::terminal_color::red), serviceNetwork.toStdString()));
+    }
 
     // Parse actuator mode
     if(parser.isSet(actuatorModeOpt)) {
         // Check if match regex
         QString parsedValue = parser.value(actuatorModeOpt);
-        bool match = QRegularExpression("(sim|real)").match(parsedValue).hasMatch();
+        bool match = QRegularExpression("(sim|radio)").match(parsedValue).hasMatch();
         if(!match) {
-            spdlog::error("The given actuator mode '{}' does not match the options {}, please check that.", parsedValue.toStdString(), fmt::format(fmt::bg(fmt::terminal_color::red), "sim | real"));
+            spdlog::error("The given actuator mode '{}' does not match the options {}, please check that.", parsedValue.toStdString(), fmt::format(fmt::bg(fmt::terminal_color::red), "sim | radio"));
             exit(-1);
         }
         else {
             actuatorMode = parsedValue;
+        }
+
+        // Show available ports if no serial port has been given
+        if(parsedValue == "radio" && !parser.isSet(serialPortOpt)) {
+            spdlog::error("While using RadioActuator you need to specify a serial port. The available ports are:");
+
+            QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
+            if(availablePorts.size()) {
+                for (auto &a : availablePorts) {
+                    spdlog::info("{}", a.portName().toStdString());
+                }
+            }
+
+            exit(-1);
+        }
+    }
+
+    // Parse serial port name
+    if(parser.isSet(serialPortOpt)) {
+        // Get value
+        QString parsedValue = parser.value(serialPortOpt);
+
+        // Check if port is in available ports list
+        QList<QSerialPortInfo> availablePorts = QSerialPortInfo::availablePorts();
+        bool found = false;
+        for (auto &sp : availablePorts) {
+            if(sp.portName() == parsedValue) {
+                found = true;
+                break;
+            }
+        }
+
+        // If not found, show all available serial ports
+        if(!found) {
+            spdlog::error("The given serial port '{}' is not available.", parsedValue.toStdString());
+            if(availablePorts.size()) {
+                spdlog::info("The following ports are: ");
+                for (auto &a : availablePorts) {
+                    spdlog::info("{}", a.portName().toStdString());
+                }
+            }
+            exit(-1);
+        }
+        else {
+            serialPortName = parsedValue;
         }
     }
 
@@ -115,6 +172,9 @@ int main(int argc, char *argv[]) {
             simAddress = parsedValue;
         }
     }
+    else {
+        spdlog::warn("There is no sim address provided, so it will run by default at {}.", fmt::format(fmt::bg(fmt::terminal_color::red), simAddress.toStdString()));
+    }
 
     // Parse team color
     if(parser.isSet(teamColorOpt)) {
@@ -129,6 +189,9 @@ int main(int argc, char *argv[]) {
             teamColor = parsedValue;
         }
     }
+    else {
+        spdlog::warn("There is no team color provided, so it will run by default using {}.", teamColor.toStdString() == "blue" ? fmt::format(fmt::bg(fmt::terminal_color::blue), "blue") : fmt::format(fmt::fg(fmt::terminal_color::black) | fmt::bg(fmt::terminal_color::yellow), "yellow"));
+    }
 
     // Setup ExitHandler
     Utils::ExitHandler::setApplication(&a);
@@ -137,13 +200,10 @@ int main(int argc, char *argv[]) {
     // Start actuator implementation
     BaseActuator *baseActuator = nullptr;
     if(actuatorMode == "sim") {
-        baseActuator = new SimulationActuator(simAddress, teamColor == "blue" ? 10301 : 10302);
+        baseActuator = new SimulationActuator(simAddress, teamColor == "blue" ? 20011 : 20011);
     }
     else {
-        /// TODO: create implementation for real sim
-        spdlog::info("Currently the real actuator is not available, please use the 'sim' option.");
-        exit(-1);
-        baseActuator = nullptr;
+        baseActuator = new RadioActuator(serialPortName);
     }
 
     // Setup actuator client that will communicate with gRPC backend
@@ -160,6 +220,9 @@ int main(int argc, char *argv[]) {
 
     // Stop entities
     entityManager->disableEntities();
+
+    // Delete and close serial
+    delete baseActuator;
 
     return exec;
 }

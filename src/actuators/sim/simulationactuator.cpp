@@ -27,83 +27,61 @@
 SimulationActuator::SimulationActuator(QString serverAddress, quint16 serverPort) : Base::UDP::Client(serverAddress, serverPort) {
     bool connected = connectToNetwork();
     if(connected) {
-        spdlog::info("[{}] Connected to simulator at address '{}' and port '{}'.", typeid(*this).name(), serverAddress.toStdString(), serverPort);
+        spdlog::info("[{}] Connected to simulator at address '{}' and port '{}'.", clientName().toStdString(), serverAddress.toStdString(), serverPort);
     }
     else {
-        spdlog::warn("[{}] Could not connect to simulator at address '{}' and port '{}'.", typeid(*this).name(), serverAddress.toStdString(), serverPort);
+        spdlog::warn("[{}] Could not connect to simulator at address '{}' and port '{}'.", clientName().toStdString(), serverAddress.toStdString(), serverPort);
     }
 }
 
 void SimulationActuator::sendData(const Armorial::ControlPacket& packet) {
     // Creating packet
-    RobotControl simulationPacket;
+    fira_message::sim_to_ref::Packet pkt;
+    fira_message::sim_to_ref::Command *command = pkt.mutable_cmd()->add_robot_commands();
 
-    // Creating robot commands (vel, kick, dribble)
-    RobotCommand *command = simulationPacket.add_robot_commands();
-
-    // Setting commands
-    // Player id
+    // Setting macro informations (team and timestamp)
     command->set_id(packet.robotidentifier().robotid());
+    command->set_yellowteam(!packet.robotidentifier().robotcolor().isblue());
 
-    // Player velocity
-    RobotMoveCommand *move = command->mutable_move_command();
-    MoveLocalVelocity *localVelocity = move->mutable_local_velocity();
-    localVelocity->set_forward(packet.robotvelocity().vx());
-    localVelocity->set_left(packet.robotvelocity().vy());
-    localVelocity->set_angular(packet.robotangularspeed().vw());
+    // Set wheels speed
+    command->set_wheel_left(packet.w2());
+    command->set_wheel_right(packet.w1());
 
-    // Player kick speed
-    command->set_kick_speed(packet.robotkick().kickspeed());
-    command->set_kick_angle(packet.robotkick().kickangle());
-
-    // Player dribble
-    command->set_dribbler_speed(packet.dribbling() ? 100 : 0);
+    spdlog::info("{} {} {} {}", packet.robotidentifier().robotid(), !packet.robotidentifier().robotcolor().isblue(), packet.w2(), packet.w1());
 
     // Parse to datagram
-    QByteArray buffer(simulationPacket.ByteSize(), 0);
-    simulationPacket.SerializeToArray(buffer.data(), buffer.size());
+    QByteArray buffer(pkt.ByteSize(), 0);
+    pkt.SerializeToArray(buffer.data(), buffer.size());
     QNetworkDatagram datagram(buffer);
 
     // Try to send data to simulator
     bool sentDatagram = sendDatagram(datagram);
     if(!sentDatagram) {
-        spdlog::warn("[{}] Failed to sent datagram to simulator. Is simulator running?", typeid(*this).name());
+        spdlog::warn("[{}] Failed to sent datagram to simulator. Is simulator running?", clientName().toStdString());
     }
 }
 
 void SimulationActuator::sendZeroData(const Armorial::RobotIdentifier& robotIdentifier) {
     // Creating packet
-    RobotControl simulationPacket;
+    fira_message::sim_to_ref::Packet pkt;
+    fira_message::sim_to_ref::Command *command = pkt.mutable_cmd()->add_robot_commands();
 
-    // Creating robot commands (vel, kick, dribble)
-    RobotCommand *command = simulationPacket.add_robot_commands();
-
-    // Setting commands
-    // Player id
+    // Setting macro informations (team and timestamp)
     command->set_id(robotIdentifier.robotid());
+    command->set_yellowteam(!robotIdentifier.robotcolor().isblue());
 
-    // Player velocity
-    RobotMoveCommand *move = command->mutable_move_command();
-    MoveLocalVelocity *localVelocity = move->mutable_local_velocity();
-    localVelocity->set_forward(0.0);
-    localVelocity->set_left(0.0);
-    localVelocity->set_angular(0.0);
-
-    // Player kick speed
-    command->set_kick_speed(0.0);
-    command->set_kick_angle(0.0);
-
-    // Player dribble
-    command->set_dribbler_speed(0);
+    // Set wheels speed
+    command->set_wheel_left(0.0);
+    command->set_wheel_right(0.0);
 
     // Parse to datagram
-    QByteArray buffer(simulationPacket.ByteSize(), 0);
-    simulationPacket.SerializeToArray(buffer.data(), buffer.size());
+    QByteArray buffer(pkt.ByteSize(), 0);
+    pkt.SerializeToArray(buffer.data(), buffer.size());
     QNetworkDatagram datagram(buffer);
 
     // Try to send data to simulator
     bool sentDatagram = sendDatagram(datagram);
     if(!sentDatagram) {
-        spdlog::warn("[{}] Failed to sent datagram to simulator. Is simulator running?", typeid(*this).name());
+        spdlog::warn("[{}] Failed to sent datagram to simulator. Is simulator running?", clientName().toStdString());
     }
 }

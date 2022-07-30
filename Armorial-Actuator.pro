@@ -11,7 +11,7 @@ RCC_DIR = tmp/rc
 
 CONFIG += c++17 console
 CONFIG -= app_bundle
-QT += core network
+QT += core network serialport
 
 DEFINES += QT_DEPRECATED_WARNINGS
 LIBS += -lQt5Core -lprotobuf -lgrpc -lgrpc++ -lGLU -lfmt -lArmorial
@@ -37,10 +37,12 @@ DEFINES += PROJECT_PATH=\\\"$${PWD}\\\"
 SOURCES += \
         include/proto/actuatorservice.grpc.pb.cc \
         include/proto/actuatorservice.pb.cc \
-        include/proto/coachservice.grpc.pb.cc \
-        include/proto/coachservice.pb.cc \
+        include/proto/command.pb.cc \
+        include/proto/common.pb.cc \
         include/proto/messages.grpc.pb.cc \
         include/proto/messages.pb.cc \
+        include/proto/packet.pb.cc \
+        include/proto/replacement.pb.cc \
         include/proto/sensorservice.grpc.pb.cc \
         include/proto/sensorservice.pb.cc \
         include/proto/ssl_gc_common.pb.cc \
@@ -56,6 +58,7 @@ SOURCES += \
         include/proto/visionservice.pb.cc \
         main.cpp \
         src/actuators/baseactuator.cpp \
+        src/actuators/radio/radioactuator.cpp \
         src/actuators/sim/simulationactuator.cpp \
         src/client/actuatorclient.cpp
 
@@ -67,10 +70,12 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \ \
     include/proto/actuatorservice.grpc.pb.h \
     include/proto/actuatorservice.pb.h \
-    include/proto/coachservice.grpc.pb.h \
-    include/proto/coachservice.pb.h \
+    include/proto/command.pb.h \
+    include/proto/common.pb.h \
     include/proto/messages.grpc.pb.h \
     include/proto/messages.pb.h \
+    include/proto/packet.pb.h \
+    include/proto/replacement.pb.h \
     include/proto/sensorservice.grpc.pb.h \
     include/proto/sensorservice.pb.h \
     include/proto/ssl_gc_common.pb.h \
@@ -85,6 +90,7 @@ HEADERS += \ \
     include/proto/visionservice.grpc.pb.h \
     include/proto/visionservice.pb.h \
     src/actuators/baseactuator.h \
+    src/actuators/radio/radioactuator.h \
     src/actuators/sim/simulationactuator.h \
     src/client/actuatorclient.h
 
