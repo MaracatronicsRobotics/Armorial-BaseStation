@@ -19,40 +19,52 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
-#ifndef BASE_ACTUATOR_H
-#define BASE_ACTUATOR_H
+#ifndef BASESTATION_H
+#define BASESTATION_H
+
+#include <QObject>
 
 #include <include/proto/messages.pb.h>
 
 /*!
- * \brief The BaseActuator class provides a interface for the actuator implementations.
+ * \brief The BaseStation class
  */
-class BaseActuator
+class BaseStation : public QObject
 {
+    Q_OBJECT
 public:
-    /*!
-     * \brief BaseActuator default constructor.
-     */
-    BaseActuator() = default;
+    BaseStation() = default;
+    virtual ~BaseStation() = default;
 
-    /*!
-     * \brief ~BaseActuator virtual destructor.
-     */
-    virtual ~BaseActuator() = default;
+protected:
+    friend class BaseStationManager;
 
     /*!
      * \brief Virtual sendData that allows the children implementation to interpret and send the control packet
      *  to the robots.
-     * \param packet The control packet which will be sent.
+     * \param packets The control packets which will be sent.
      */
-    virtual void sendData(const Armorial::ControlPacket& packet) = 0;
+    virtual void sendData(const QList<Armorial::ControlPacket>& packets) = 0;
 
     /*!
      * \brief Virtual sendZeroData that allows the children implementation to send a zero-control packet
      * to the robots.
-     * \param robotIdentifier The robot identifier which will receive the data.
      */
-    virtual void sendZeroData(const Armorial::RobotIdentifier& robotIdentifier) = 0;
+    virtual void sendZeroData() = 0;
+
+    /*!
+     * \brief Virtual startup method that needs to be called when children needs to start a thread-related
+     * object (such as timer or sockets).
+     */
+    virtual void startup() = 0;
+
+signals:
+    /*!
+     * \brief sendFeedback method that allows the children implementations to cast and send the status packets
+     * obtained from the robots.
+     * \param robotStatus The robot status packet which will be sent.
+     */
+    void sendFeedback(const Armorial::RobotStatus& robotStatus);
 };
 
-#endif // BASE_ACTUATOR_H
+#endif // BASESTATION_H

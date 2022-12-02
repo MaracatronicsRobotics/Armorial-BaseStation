@@ -24,12 +24,15 @@
 #include <QRegularExpression>
 #include <QSerialPortInfo>
 
+#include <grpc++/health_check_service_interface.h>
+
 #include <Armorial/Utils/ExitHandler/ExitHandler.h>
 #include <Armorial/Threaded/EntityManager/EntityManager.h>
 
-#include <src/client/actuatorclient.h>
-#include <src/actuators/sim/simulationactuator.h>
-#include <src/actuators/radio/radioactuator.h>
+#include <src/basestations/real/realbasestation.h>
+#include <src/basestations/sim/simbasestation.h>
+#include <src/manager/basestationmanager.h>
+#include <src/service/basestationservice.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/bundled/color.h>
@@ -42,12 +45,10 @@ int main(int argc, char *argv[]) {
     parser.addHelpOption();
     parser.addVersionOption();
 
+    // Enable health checking for service
+    grpc::EnableDefaultHealthCheckService(true);
+
     // Setup application options
-    // Service network
-    QCommandLineOption serviceNetworkOpt("service",
-                                      QCoreApplication::translate("main", "Set service address:port"),
-                                      QCoreApplication::translate("main", "<address>:<port>"));
-    parser.addOption(serviceNetworkOpt);
 
     // Mode (sim / radio)
     QCommandLineOption actuatorModeOpt("mode",
@@ -77,29 +78,12 @@ int main(int argc, char *argv[]) {
     parser.process(a);
 
     // Setup default arguments
-    QString serviceNetwork = "127.0.0.1:50051";
     QString actuatorMode = "sim";
     QString simAddress = "127.0.0.1";
     QString teamColor = "blue";
     QString serialPortName = "";
 
     // Parse options
-    // Parse service network
-    if(parser.isSet(serviceNetworkOpt)) {
-        // Check if match regex
-        QString parsedValue = parser.value(serviceNetworkOpt);
-        bool match = QRegularExpression("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\:[0-9]{1,5}").match(parsedValue).hasMatch();
-        if(!match) {
-            spdlog::error("The given service network '{}' does not match the pattern {}, please check that.", parsedValue.toStdString(), fmt::format(fmt::bg(fmt::terminal_color::red), "ip:port"));
-            exit(-1);
-        }
-        else {
-            serviceNetwork = parsedValue;
-        }
-    }
-    else {
-        spdlog::warn("There is no service network provided, so it will run by default at {}.", fmt::format(fmt::bg(fmt::terminal_color::red), serviceNetwork.toStdString()));
-    }
 
     // Parse actuator mode
     if(parser.isSet(actuatorModeOpt)) {
@@ -197,21 +181,25 @@ int main(int argc, char *argv[]) {
     Utils::ExitHandler::setApplication(&a);
     Utils::ExitHandler::setup();
 
-    // Start actuator implementation
-    BaseActuator *baseActuator = nullptr;
+    // Start BaseStation implementation
+    BaseStation* baseStation = nullptr;
     if(actuatorMode == "sim") {
-        baseActuator = new SimulationActuator(simAddress, teamColor == "blue" ? 20011 : 20011);
+        baseStation = new SimBaseStation(simAddress, teamColor == "blue" ? 10301 : 10302);
     }
     else {
-        baseActuator = new RadioActuator(serialPortName);
+        baseStation = new RealBaseStation();
     }
 
-    // Setup actuator client that will communicate with gRPC backend
-    ActuatorClient *actuatorClient = new ActuatorClient(serviceNetwork.split(":")[0], serviceNetwork.split(":")[1].toUInt(), baseActuator);
+    // Setup BaseStation manager
+    BaseStationManager* baseStationManager = new BaseStationManager(baseStation);
+
+    // Setup BaseStation service
+    BaseStationService* baseStationService = new BaseStationService("127.0.0.1", 50051, baseStationManager);
 
     // Create entity manager
     Threaded::EntityManager *entityManager = new Threaded::EntityManager();
-    entityManager->addEntity(actuatorClient);
+    entityManager->addEntity(baseStationManager);
+    entityManager->addEntity(baseStationService);
 
     // Start entities
     entityManager->startEntities();
@@ -221,8 +209,8 @@ int main(int argc, char *argv[]) {
     // Stop entities
     entityManager->disableEntities();
 
-    // Delete and close serial
-    delete baseActuator;
+    // Delete modules
+    delete baseStation;
 
     return exec;
 }

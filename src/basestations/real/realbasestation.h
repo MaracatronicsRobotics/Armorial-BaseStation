@@ -19,5 +19,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ***/
 
+#ifndef REALBASESTATION_H
+#define REALBASESTATION_H
 
-#include "baseactuator.h"
+#include <src/basestations/basestation.h>
+
+class RealBaseStation : public BaseStation
+{
+public:
+    RealBaseStation();
+
+protected:
+    void sendData(const QList<Armorial::ControlPacket>& packets);
+    void sendZeroData();
+    void startup();
+};
+
+#endif // REALBASESTATION_H
